@@ -1,22 +1,10 @@
 package de.tu_berlin.open_data.airquality.brandenburgairqualitydata.batch;
 
 import de.tu_berlin.open_data.airquality.brandenburgairqualitydata.*;
-import de.tu_berlin.open_data.airquality.brandenburgairqualitydata.http.HttpService;
 import de.tu_berlin.open_data.airquality.brandenburgairqualitydata.model.AirData;
-import de.tu_berlin.open_data.airquality.brandenburgairqualitydata.model.BMESensor;
-import de.tu_berlin.open_data.airquality.brandenburgairqualitydata.model.Schema;
 import de.tu_berlin.open_data.airquality.brandenburgairqualitydata.service.ApplicationService;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.annotation.BeforeJob;
 import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
@@ -28,14 +16,9 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.excel.AbstractExcelItemReader;
 import org.springframework.batch.item.excel.RowMapper;
-import org.springframework.batch.item.excel.mapping.BeanWrapperRowMapper;
 import org.springframework.batch.item.excel.poi.PoiItemReader;
-import org.springframework.batch.item.file.FlatFileItemReader;
-import org.springframework.batch.item.file.MultiResourceItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.cloud.task.listener.annotation.BeforeTask;
-import org.springframework.cloud.task.repository.TaskExecution;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -43,8 +26,6 @@ import org.springframework.core.io.*;
 
 import javax.sql.DataSource;
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 
@@ -76,15 +57,21 @@ public class BatchConfiguration {
 
 
     @Bean
-    ItemReader<AirData> excelStudentReader(Environment environment) throws FileNotFoundException, MalformedURLException {
-        AbstractExcelItemReader<AirData> reader = new PoiItemReader<>();
+    ItemReader<AirData> excelStudentReader(Environment environment) throws IOException {
+        AbstractExcelItemReader<AirData> reader = new MyItemReader();
 
 
 
-      //  URL url = new URL("https://luftdaten.brandenburg.de/home/-/bereich/datenexport/Montag.xls");
+
+
+      URL url = new URL("https://luftdaten.brandenburg.de/home/-/bereich/datenexport/Montag.xls");
         //reader.setMaxItemCount(10);
-        reader.setResource((new ClassPathResource("Montag.xls")));
-        reader.setLinesToSkip(1);
+       // reader.setResource((new InputStreamResource(new PushbackInputStream(url.openStream()))));
+        //reader.setResource((new ClassPathResource("Montag.xls")));
+        reader.setResource(new InputStreamResource(new PushbackInputStream(new FileInputStream(new File("Montag-work.xls")))));
+        reader.setLinesToSkip(5);
+
+       // reader.setMaxItemCount(20);
        // reader.setMaxItemCount(10);
 
 
@@ -107,7 +94,7 @@ public class BatchConfiguration {
      * row mapper and configure it here.
      */
     private RowMapper<AirData> excelRowMapper() {
-       return new StudentExcelRowMapper();
+       return new AirDataExcelRowMapper();
     }
 
     @Bean

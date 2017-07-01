@@ -31,20 +31,30 @@ public class BrandenburgAirQualityDataApplication implements CommandLineRunner {
      //   wb.getSheet("alo");
         HSSFSheet sheet = wb.getSheetAt(0);
 
-        sheet.createRow(0);
+      //  sheet.createRow(0);
+
+
+
+        int mergedRegions = sheet.getNumMergedRegions();
+
+        while ((mergedRegions = sheet.getNumMergedRegions()) > 0){
+
+            sheet.removeMergedRegion(0);
+
+        }
 
 
 
 
-//        removeRow(sheet, 0);
-//        removeRow(sheet, 0);
-//        removeRow(sheet, 0);
-       // removeRow(sheet, 0);
+        removeRow(sheet, 0);
+        removeRow(sheet, 0);
+        removeRow(sheet, 0);
+        removeRow(sheet, 0);
 
-        sheet.createRow(0);
-        sheet.createRow(1);
-        sheet.createRow(2);
-        sheet.createRow(3);
+//        sheet.createRow(0);
+//        sheet.createRow(1);
+//        sheet.createRow(2);
+//        sheet.createRow(3);
        // removeRow(sheet, 0);
 
         Row row;
@@ -61,13 +71,7 @@ public class BrandenburgAirQualityDataApplication implements CommandLineRunner {
 //        sheet.autoSizeColumn(2);
 //        sheet.autoSizeColumn(3);
 
-        int mergedRegions = sheet.getNumMergedRegions();
 
-        while ((mergedRegions = sheet.getNumMergedRegions()) > 0){
-
-            sheet.removeMergedRegion(0);
-
-        }
 
 //        for (int index = 0; index < 15; index++){
 //            sheet.removeMergedRegion(index);
