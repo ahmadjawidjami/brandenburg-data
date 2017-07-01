@@ -1,7 +1,6 @@
 package de.tu_berlin.open_data.airquality.brandenburgairqualitydata.batch;
 
-import de.tu_berlin.open_data.airquality.brandenburgairqualitydata.*;
-import de.tu_berlin.open_data.airquality.brandenburgairqualitydata.model.AirData;
+import de.tu_berlin.open_data.airquality.brandenburgairqualitydata.model.AirQuality;
 import de.tu_berlin.open_data.airquality.brandenburgairqualitydata.service.ApplicationService;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -11,12 +10,12 @@ import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.support.JobRegistryBeanPostProcessor;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.core.step.skip.SkipPolicy;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.excel.AbstractExcelItemReader;
 import org.springframework.batch.item.excel.RowMapper;
-import org.springframework.batch.item.excel.poi.PoiItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -57,12 +56,8 @@ public class BatchConfiguration {
 
 
     @Bean
-    ItemReader<AirData> excelStudentReader(Environment environment) throws IOException {
-        AbstractExcelItemReader<AirData> reader = new MyItemReader();
-
-
-
-
+    ItemReader<AirQuality> reader(Environment environment) throws IOException {
+        AbstractExcelItemReader<AirQuality> reader = new CustomPoiItemReader();
 
       URL url = new URL("https://luftdaten.brandenburg.de/home/-/bereich/datenexport/Montag.xls");
         //reader.setMaxItemCount(10);
@@ -75,63 +70,65 @@ public class BatchConfiguration {
        // reader.setMaxItemCount(10);
 
 
-//        reader.setRowMapper(new BeanWrapperRowMapper<AirData>() {{
-//            setTargetType(AirData.class);
+//        reader.setRowMapper(new BeanWrapperRowMapper<AirQuality>() {{
+//            setTargetType(AirQuality.class);
 //        }});
 
        reader.setRowMapper(excelRowMapper());
         return reader;
     }
 
-//    private RowMapper<AirData> excelRowMapper() {
-//        BeanWrapperRowMapper<AirData> rowMapper = new BeanWrapperRowMapper<>();
-//        rowMapper.setTargetType(AirData.class);
+//    private RowMapper<AirQuality> excelRowMapper() {
+//        BeanWrapperRowMapper<AirQuality> rowMapper = new BeanWrapperRowMapper<>();
+//        rowMapper.setTargetType(AirQuality.class);
 //        return rowMapper;
 //    }
 
     /**
-     * If your Excel document has no header, you have to create a custom
-     * row mapper and configure it here.
+     * excel document cannot be read using the class.
+     * custom row mapper to map columns of excel file to attributes of the class
      */
-    private RowMapper<AirData> excelRowMapper() {
-       return new AirDataExcelRowMapper();
+    private RowMapper<AirQuality> excelRowMapper() {
+       return new AirQualityExcelRowMapper();
     }
 
     @Bean
-    ItemProcessor<AirData, AirData> excelStudentProcessor() {
-        return new LoggingStudentProcessor();
+    ItemProcessor<AirQuality, String> processor() {
+        return new AirQualityItemProcessor();
     }
 
     @Bean
-    ItemWriter<AirData> excelStudentWriter() {
-        return new LoggingStudentWriter();
+    ItemWriter<String> writer() {
+        return new AirQualityItemWriter();
     }
 
     @Bean
-    Step excelFileToDatabaseStep(ItemReader<AirData> excelStudentReader,
-                                 ItemProcessor<AirData, AirData> excelStudentProcessor,
-                                 ItemWriter<AirData> excelStudentWriter,
-                                 StepBuilderFactory stepBuilderFactory) {
-        return stepBuilderFactory.get("excelFileToDatabaseStep")
-                .<AirData, AirData>chunk(1)
-                .reader(excelStudentReader)
-                .processor(excelStudentProcessor)
-                .writer(excelStudentWriter)
+    public SkipPolicy recordSkipper() {
+        return new RecordSkipper();
+    }
+
+    @Bean
+    Step step1(ItemReader<AirQuality> itemReader,
+               ItemProcessor itemProcessor,
+               ItemWriter<String> itemWriter,
+               StepBuilderFactory stepBuilderFactory) {
+        return stepBuilderFactory.get("step1")
+                .<AirQuality, AirQuality>chunk(1)
+                .reader(itemReader).faultTolerant().skipPolicy(recordSkipper())
+                .processor(itemProcessor)
+                .writer(itemWriter)
                 .build();
     }
 
     @Bean
-    Job excelFileToDatabaseJob(JobBuilderFactory jobBuilderFactory,
-                               @Qualifier("excelFileToDatabaseStep") Step excelStudentStep) {
-        return jobBuilderFactory.get("excelFileToDatabaseJob")
+    Job airQualityJob(JobBuilderFactory jobBuilderFactory,
+                               @Qualifier("step1") Step excelStudentStep) {
+        return jobBuilderFactory.get("airQualityJob")
                 .incrementer(new RunIdIncrementer())
                 .flow(excelStudentStep)
                 .end()
                 .build();
     }
-
-
-
 
     @Bean
     public JobRegistryBeanPostProcessor jobRegistryBeanPostProcess(JobRegistry jobRegistry) {

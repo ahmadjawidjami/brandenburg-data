@@ -3,7 +3,7 @@ package de.tu_berlin.open_data.airquality.brandenburgairqualitydata.model;
 /**
  * Created by ahmadjawid on 6/29/17.
  */
-public class AirData extends Schema {
+public class AirQuality extends Schema {
 
 
     private String measurementLocation;
@@ -21,6 +21,7 @@ public class AirData extends Schema {
     private String SO2Max1hAverage;
     private String O3DailyAverage;
     private String O3Max8hAverage;
+    private String timestamp;
 
     public String getMeasurementLocation() {
         return measurementLocation;
@@ -140,6 +141,14 @@ public class AirData extends Schema {
 
     public void setO3Max8hAverage(String o3Max8hAverage) {
         O3Max8hAverage = o3Max8hAverage;
+    }
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
     }
 
     @Override

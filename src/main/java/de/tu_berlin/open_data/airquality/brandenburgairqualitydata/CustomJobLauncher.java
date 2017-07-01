@@ -19,32 +19,29 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @author Petri Kainulainen
- */
 @Component
-public class ExcelFileToDatabaseJobLauncher {
+public class CustomJobLauncher {
 
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ExcelFileToDatabaseJobLauncher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CustomJobLauncher.class);
 
     private final Job job;
 
     private final JobLauncher jobLauncher;
 
     @Autowired
-    ExcelFileToDatabaseJobLauncher(@Qualifier("excelFileToDatabaseJob") Job job, JobLauncher jobLauncher) {
+    CustomJobLauncher(@Qualifier("airQualityJob") Job job, JobLauncher jobLauncher) {
         this.job = job;
         this.jobLauncher = jobLauncher;
     }
 
-    @Scheduled(cron = "${excel.to.database.job.cron}")
-    void launchXmlFileToDatabaseJob() throws JobParametersInvalidException, JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException {
-        LOGGER.info("Starting excelFileToDatabase job");
+    @Scheduled(cron = "${excel.job.cron}")
+    void lauchAirQualityJob() throws JobParametersInvalidException, JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException {
+        LOGGER.info("Starting airQuality job");
 
         jobLauncher.run(job, newExecution());
 
-        LOGGER.info("Stopping excelFileToDatabase job");
+        LOGGER.info("Stopping airQuality job");
     }
 
     private JobParameters newExecution() {

@@ -1,11 +1,9 @@
 package de.tu_berlin.open_data.airquality.brandenburgairqualitydata.batch;
 
-import de.tu_berlin.open_data.airquality.brandenburgairqualitydata.model.AirData;
-import org.apache.poi.ss.formula.functions.T;
+import de.tu_berlin.open_data.airquality.brandenburgairqualitydata.model.AirQuality;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.item.ExecutionContext;
-import org.springframework.batch.item.ItemCountAware;
 import org.springframework.batch.item.ParseException;
 import org.springframework.batch.item.UnexpectedInputException;
 import org.springframework.batch.item.excel.poi.PoiItemReader;
@@ -13,7 +11,12 @@ import org.springframework.batch.item.excel.poi.PoiItemReader;
 /**
  * Created by ahmadjawid on 7/1/17.
  */
-public class MyItemReader extends PoiItemReader<AirData> {
+public class CustomPoiItemReader extends PoiItemReader<AirQuality> {
+
+
+    public CustomPoiItemReader(){
+       // this.setLinesToSkip(1);
+    }
 
 
     private ExecutionContext executionContext;
@@ -27,12 +30,12 @@ public class MyItemReader extends PoiItemReader<AirData> {
     }
 
     @Override
-    public AirData read() throws Exception, UnexpectedInputException, ParseException {
+    public AirQuality read() throws Exception, UnexpectedInputException, ParseException {
 
-        AirData airData = super.read();
+        AirQuality airQuality = super.read();
         try {
-            if (airData.getMeasurementLocation().equals(" ") || airData.getMeasurementLocation().equals("")) {
-                //System.out.println("inside condition:"+airData.getMeasurementLocation()+":alo:"+airData.getCODailyAverage()+":");
+            if (airQuality.getMeasurementLocation().equals(" ") || airQuality.getMeasurementLocation().equals("")) {
+                //System.out.println("inside condition:"+airQuality.getMeasurementLocation()+":alo:"+airQuality.getCODailyAverage()+":");
                 return null;
 
             }
@@ -41,11 +44,11 @@ public class MyItemReader extends PoiItemReader<AirData> {
         }
 
 
-        // System.out.println("This is:" + airData.getMeasurementLocation()+":the chunk");
+        // System.out.println("This is:" + airQuality.getMeasurementLocation()+":the chunk");
 
 //        if (executionContext.containsKey("readerStop"))
 //            return null;
 
-        return airData;
+        return airQuality;
     }
 }
