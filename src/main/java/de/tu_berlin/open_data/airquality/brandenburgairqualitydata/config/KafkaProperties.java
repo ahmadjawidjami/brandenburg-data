@@ -34,6 +34,12 @@ public class KafkaProperties {
      */
     private String valueSerializer = "org.apache.kafka.common.serialization.StringSerializer";
 
+    /**
+     * defaults to weatherData
+     */
+
+    private String topic = "weatherData";
+
     public String getMetadataBrokerList() {
         return metadataBrokerList;
     }
@@ -88,6 +94,14 @@ public class KafkaProperties {
 
     public void setValueSerializer(String valueSerializer) {
         this.valueSerializer = valueSerializer;
+    }
+
+    public String getTopic() {
+        return topic;
+    }
+
+    public void setTopic(String topic) {
+        this.topic = topic;
     }
 }
 

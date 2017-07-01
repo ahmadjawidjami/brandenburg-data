@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
  * Created by ahmadjawid on 6/9/17.
  */
 @Service
-public class BMESensorJsonSchemaCreator implements JsonSchemaCreator {
+public class AirQualityJsonSchemaCreator implements JsonSchemaCreator {
 
     @Autowired
     ApplicationService applicationService;
@@ -102,12 +102,12 @@ public class BMESensorJsonSchemaCreator implements JsonSchemaCreator {
         secondLevelChild = nodeFactory.objectNode();
         secondLevelChild.put("sensor", "Ozone (O₃)");
         secondLevelChild.put("observation_value", applicationService.parseToFloat(airQualityItem.getO3DailyAverage()));
-        firstLevelChild.set("getO3DailyAverage", secondLevelChild);
+        firstLevelChild.set("O3DailyAverage", secondLevelChild);
 
         secondLevelChild = nodeFactory.objectNode();
         secondLevelChild.put("sensor", "Ozone (O₃)");
         secondLevelChild.put("observation_value", applicationService.parseToFloat(airQualityItem.getO3Max8hAverage()));
-        firstLevelChild.set("getO3Max8hAverage", secondLevelChild);
+        firstLevelChild.set("O3Max8hAverage", secondLevelChild);
 
 
         mainObject.set("sensors", firstLevelChild);

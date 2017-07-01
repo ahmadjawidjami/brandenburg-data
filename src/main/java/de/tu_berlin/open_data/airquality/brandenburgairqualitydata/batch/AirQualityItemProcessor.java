@@ -5,9 +5,6 @@ import de.tu_berlin.open_data.airquality.brandenburgairqualitydata.service.Appli
 import de.tu_berlin.open_data.airquality.brandenburgairqualitydata.service.JsonSchemaCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.annotation.BeforeStep;
-import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -21,7 +18,6 @@ public class AirQualityItemProcessor implements ItemProcessor<AirQuality, String
     private ApplicationService applicationService;
 
     @Autowired
-    @Qualifier("BMESensorJsonSchemaCreator")
     private JsonSchemaCreator jsonSchemaCreator;
 
 
